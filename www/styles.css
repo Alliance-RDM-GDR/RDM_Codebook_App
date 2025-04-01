@@ -1,0 +1,21 @@
+/* Default style for some element */
+.my-element {
+  font-size: 16px;
+  margin: 20px;
+}
+
+/* Media query: screens <= 768px wide */
+@media (max-width: 768px) {
+  .my-element {
+    font-size: 14px;
+    margin: 10px;
+    background-color: #f5f5f5;
+  }
+}
+
+/* Another example: screens <= 576px wide (common Bootstrap “sm” breakpoint) */
+@media (max-width: 576px) {
+  .my-element {
+    display: none; /* Hide this element completely on very narrow screens */
+  }
+}
