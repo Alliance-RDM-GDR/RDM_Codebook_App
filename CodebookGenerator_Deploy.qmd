@@ -8,10 +8,10 @@ editor: visual
 
 library(shinylive)
 
-# Set the path to your Shiny app directory
+# Set Shiny app directory
 app_dir <- "CodebookGenerator"
 
-# Set the output directory where the exported app will be saved
+# Set the output directory
 output_dir <- "Codebook_WebApp"
 
 # Export the app
