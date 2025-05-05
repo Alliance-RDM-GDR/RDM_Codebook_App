@@ -86,7 +86,7 @@ ui <- fluidPage(
           tags$ul(
             tags$li(
               tagList(
-                "Click to write the '",
+                "Double click to write the '",
                 tags$span(style = "color: green;", "Label"),
                 "'and '",
                 tags$span(style = "color: green;", "Units"),
