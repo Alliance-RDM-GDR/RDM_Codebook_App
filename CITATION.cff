@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Codebook Generator App"
+authors:
+  - family-names: Manrique-Castano
+    given-names: Daniel
+    affiliation: Digital Research Alliance of Canada
+    orcid: https://orcid.org/https://orcid.org/0000-0002-1912-1764 
+  - name: Digital Research Alliance of Canada
+    affiliation: https://alliancecan.ca
+
+date-released: 2025-07-28
+version: 1.0.0
+repository-code: https://github.com/Alliance-RDM-GDR/RDM_Codebook_App
+license: MIT
+keywords:
+  - research data management
+  - codebook
+  - metadata
+  - FAIR data
+  - Shiny
+  - open science
+
+type: software
+doi: 10.5281/zenodo.XXXX  # Replace with your actual DOI if published via Zenodo
