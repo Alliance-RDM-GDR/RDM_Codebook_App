@@ -1,0 +1,15 @@
+name: codebook-app-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base=4.3
+  - r-shiny
+  - r-shinyjs
+  - r-shinythemes
+  - r-shinybs
+  - r-rhandsontable
+  - r-readxl
+  - r-dt
+  - r-devtools
+  - r-tidyverse

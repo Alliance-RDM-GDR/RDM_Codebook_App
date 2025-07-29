@@ -1,0 +1,7 @@
+shiny
+shinyjs
+shinythemes
+shinyBS
+rhandsontable
+readxl
+DT
