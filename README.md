@@ -69,6 +69,7 @@ shiny::runApp("app.R")
   - `QUICK_START.md`: step-by-step usage guide
   - `CONTRIBUTING.md`: contributor guide
   - `architecture.md` : description of software architecture
+- `CodebookGenerator_Deploy.qmd`: compiles the app as stand-alone resource using shinylive 
 - `CITATION.cff`: citation metadata
 - `Dockerfile`: container deployment
 
@@ -177,6 +178,7 @@ shiny::runApp("app.R")
   - `QUICK_START.md`: guide d’utilisation pas à pas
   - `CONTRIBUTING.md`: guide du contributeur
   - `architecture.md` : description de l'architecture logicielle
+- `CodebookGenerator_Deploy.qmd`:compile l'application en tant que ressource autonome à l'aide de shinylive 
 - `CITATION.cff`: citation metadata
 - `Dockerfile`: déploiement en conteneur
 
