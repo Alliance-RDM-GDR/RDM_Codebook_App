@@ -1,6 +1,7 @@
 # Codebook Generator App
 
 **Welcome to the Codebook Generator App!**  
+
 This tool helps researchers and research data management practitioners to quickly generate codebooks for data tables (CSV, TSV, or XLSX). Built using R and Shiny, it works entirely in your browser thanks to [Shinylive](https://github.com/rstudio/shinylive), requiring no server backend or data upload.
 
 ---
@@ -108,8 +109,9 @@ See the full user guide [here](https://alliance-rdm-gdr.github.io/CUR_Res_OnePag
 # Générateur de dictionnaires de données
 
 **Bienvenue dans le Générateur de dictionnaires de données !**
-Cet outil aide les chercheuses, chercheurs et praticiens de la gestion des données de recherche à créer rapidement des dictionnaires de données (« codebooks ») pour des tables de données (CSV, TSV ou XLSX). Construit avec R et Shiny, il s’exécute entièrement dans votre navigateur grâce à Shinylive
-, sans serveur ni téléversement de données.
+
+Cet outil aide les chercheuses, chercheurs et praticiens de la gestion des données de recherche à créer rapidement des dictionnaires de données (« codebooks ») pour des tables de données (CSV, TSV ou XLSX). Construit avec R et Shiny, il s’exécute entièrement dans votre navigateur grâce à Shinylive, sans serveur ni téléversement de données.
+
 ---
 
 ## 🌐 Application en ligne
