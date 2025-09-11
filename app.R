@@ -78,7 +78,7 @@ ui <- fluidPage(
           tagList(
             "Check our ",
             tags$a(
-              href = "https://alliance-rdm-gdr.github.io/RDM_CodebookGenerator/RDM_Codebook_en.html",
+              href = "https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_en.html",
               "documentation"
             ),
             " to fill in the codebook, specifically:"
