@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Exporting Codebook generator"
 format: html
 editor: visual
 ---
@@ -13,7 +13,7 @@ library(here)
 app_dir <- here()
 
 # Set the output directory
-output_dir <- "WebApp"
+output_dir <- here()
 
 # Export the app
 shinylive::export(app_dir, destdir = output_dir)
