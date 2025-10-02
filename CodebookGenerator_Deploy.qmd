@@ -15,6 +15,8 @@ app_dir <- here()
 # Set the output directory
 output_dir <- here()
 
+# need to place index.html to the main directory before pushing to GitHub
+
 # Export the app
 shinylive::export(app_dir, destdir = output_dir)
 ```
