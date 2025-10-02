@@ -86,7 +86,7 @@ ui <- fluidPage(
               href = "https://github.com/Alliance-RDM-GDR/RDM_Codebook_App",
               "GitHub repository"
             ),
-            " to fill in the codebook, specifically:"
+            " for instruction on how to fill in the codebook, specifically:"
           ),
           tags$ul(
             tags$li(
