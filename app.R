@@ -115,6 +115,12 @@ ui <- fluidPage(
         style = "font-size: 16px;"
       ),
       
+      h4("Caution notes:"),
+      tags$ul(
+        tags$li("This app does not store any data. Complete the process and download the codebook."),
+        tags$li("Make sure you refresh the page before uploading and documenting a new data table."),
+        ),
+      
       fileInput("datafile", "Upload your data file",
                 accept = c(".csv", ".tsv", ".xlsx")),
       
