@@ -8,7 +8,7 @@ The app allows users to upload `.csv`, `.tsv`, or `.xlsx` files, inspect and edi
 
 ## Design Principles
 
-The application is architected around a **client-first design model**, where all processing and rendering occur entirely within the user's browser using [ShinyLive](https://github.com/rstudio/shinylive), which compiles R into WebAssembly. This approach maximizes data privacy and security, as no uploaded files or metadata ever leave the user's machine.
+The application is architected around a **server-client model** using R and the [Shiny framework](https://shiny.posit.co/). The user's browser (client) handles the interface, while the R process on the server handles all data processing. This means all uploaded files and metadata are transmitted to the server's memory for processing. Critically, all data is strictly non-persistent, held only in the server's RAM for the duration of the individual user's session.
 
 The app’s interface is organized into two main areas:
 
@@ -18,11 +18,11 @@ The app’s interface is organized into two main areas:
 The logic is structured in two distinct layers:
 
 * The **UI layer**, which defines the layout and dynamically renders content based on user actions and language selection.
-* The **Server layer**, which handles data input, metadata extraction (e.g., variable type detection, range computation, and missing value analysis), and codebook export using JavaScript Blob APIs.
+* The **Server layer** (the R process) handles all core logic: receiving data from the client via HTTP/WebSockets, file parsing, metadata extraction, and dynamically updating the UI. Data is stored exclusively in session-specific reactive values in the server's volatile memory (RAM). The data is automatically destroyed and is not persisted to any disk or database when the user's session is terminated.
 
 ## Platform Compatibility
 
-Because the app uses ShinyLive for deployment, it is platform-independent and requires only a modern web browser. It has been tested primarily on Google Chrome and Firefox and is expected to perform similarly on recent versions of Safari and Edge. The app supports responsive layout techniques using CSS media queries, making it usable on smaller desktop screens and most tablets.
+The app is deployed using a standard **Shiny Server or RStudio Connect environment**. It requires only a modern web browser and is expected to perform similarly on recent versions of Chrome, Firefox, Safari, and Edge. It has been tested primarily on Google Chrome and Firefox and is expected to perform similarly on recent versions of Safari and Edge. The app supports responsive layout techniques using CSS media queries, making it usable on smaller desktop screens and most tablets.
 
 ## External Dependencies
 
