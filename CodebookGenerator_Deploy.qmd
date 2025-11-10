@@ -5,16 +5,26 @@ editor: visual
 ---
 
 ```{r}
-
 library(shinylive)
 library(here)
 
-# Set Shiny app directory
-app_dir <- here()
+project_root <- here()
+staging_dir  <- file.path(tempdir(), "codebook_shinylive")
 
-# Set the output directory
-output_dir <- "WebApp"
+# Clean + recreate the staging directory
+if (dir.exists(staging_dir)) unlink(staging_dir, recursive = TRUE, force = TRUE)
+dir.create(staging_dir, recursive = TRUE)
 
-# Export the app
-shinylive::export(app_dir, destdir = output_dir)
+# Copy only runtime files
+file.copy(file.path(project_root, "app.R"), staging_dir, overwrite = TRUE)
+dir.create(file.path(staging_dir, "www"), showWarnings = FALSE)
+file.copy(list.files(file.path(project_root, "www"), full.names = TRUE),
+          file.path(staging_dir, "www"), recursive = TRUE, overwrite = TRUE)
+
+# (Optional) include lightweight docs/metadata
+file.copy(file.path(project_root, "README.md"), staging_dir, overwrite = TRUE)
+
+# Export the staged mini-app
+output_dir <- file.path(project_root, "WebApp")
+shinylive::export(appdir = staging_dir, destdir = output_dir)
 ```

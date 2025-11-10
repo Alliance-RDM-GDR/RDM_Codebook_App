@@ -1,4 +1,5 @@
 name: codebook-app-env
+# Conda environment for the bilingual (English/French) Codebook Generator Shiny app
 channels:
   - conda-forge
   - defaults

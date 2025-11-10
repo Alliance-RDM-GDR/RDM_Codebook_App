@@ -1,3 +1,4 @@
+# Requirements for the bilingual Codebook Generator (English/French)
 shiny
 shinyjs
 shinythemes

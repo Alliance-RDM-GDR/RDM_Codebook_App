@@ -1,216 +1,123 @@
 # Codebook Generator App
 
-**Welcome to the Codebook Generator App!**  
+The Codebook Generator App helps researchers and research data management (RDM) teams document tabular datasets (CSV, TSV, XLSX). Built with R and Shiny, it now includes a language selector that instantly switches every UI element between English and French. The app runs either fully client-side via Shinylive or on a standard Shiny server.
 
-This tool helps researchers and research data management practitioners to quickly generate codebooks for data tables (CSV, TSV, or XLSX). Built using R and Shiny, it works entirely in your browser thanks to [Shinylive](https://github.com/rstudio/shinylive), requiring no server backend or data upload.
+## Live app
 
----
+Launch the bilingual Shinylive build: https://alliance-rdm-gdr.github.io/RDM_Codebook_App/
 
-## 🌐 Live App
+## Features
 
-Access the live app here:  
-➡️ **[Codebook Generator (Shinylive)](https://alliance-rdm-gdr.github.io/RDM_Codebook_App/)**
+- Upload CSV, TSV, or XLSX files up to 30 MB and preview them immediately.
+- Auto-detect variable types, min/max ranges, factor levels, and missing values.
+- Edit labels, types, and units in an interactive `rhandsontable`.
+- Download the finished codebook as CSV with localized filenames.
+- Sidebar toggle switches between English and French without reloading the session.
+- No data persistence: uploads stay in volatile browser memory only.
 
----
+## Quick start
 
-## ✨ Features
+1. Clone the repository  
+   `git clone https://github.com/Alliance-RDM-GDR/RDM_Codebook_App`
+2. Install R dependencies  
+   ```r
+   install.packages(c(
+     "shiny","shinyjs","shinythemes","shinyBS",
+     "rhandsontable","readxl","DT"
+   ))
+   ```
+3. Run the app  
+   `shiny::runApp()`
 
-- **Client-side execution** using Shinylive (WebAssembly-based)
-- **Upload** CSV, TSV, or XLSX files up to 30 MB
-- **Automatic parsing** of variable types and missing values
-- **Editable** fields for:
-  - Variable **Label**
-  - Variable **Type** (`numeric`, `character`, `factor`, `date`)
-  - **Units**
-- **Dynamic generation** of:
-  - **Range_or_Levels**: min/max for numerics or list of factor levels
-  - **Missing_Values**: counts `NA`, `na`, `n/a`, or blanks
-- **Accessible download** of the final codebook as a `.csv`
-- **No data storage**: all processing happens locally in your browser
+See `docs/QuickStart.md` for Docker instructions and additional details.
 
----
+## Folder structure
 
-## 📦 Example Codebook Output
+- `app.R` - Main Shiny app plus translation dictionary.
+- `www/` - Logos and static assets.
+- `docs/` - Architecture overview, bilingual quick start, and other references.
+- `CodebookGenerator_Deploy.qmd` - Script for creating the Shinylive bundle.
+- `requirements.txt` / `environment.yml` - Reproducible environment specs.
+- `Dockerfile` - Container build file.
 
-| **Variable**  | **Label**            | **Type**  | **Range_or_Levels** | **Missing_Values**  | **Units** |
-|---------------|----------------------|---------- |---------------------|---------------------|-----------|
-| Stage         | Experimental stage   | Factor    | 1, 2, 3, 4          | NA                  | NA        |
-| Intervention  | Intervention Group   | Factor    | G1, G2, G3          | NA                  | NA        |
-| Age           | Participant age      | Numeric   | 18 - 26             | 1                   | Years     |
-| Sex           | Biological sex       | Factor    | Men, Women          | NA                  | NA        |
-| Score         | Cognitive score      | Numeric   | 1 - 20              | NA                  | AU        |
+## Updating translations
 
----
+All strings live in the `translations` list near the top of `app.R`. Each key has an English and French entry. Update both entries when adding new UI copy, then verify both languages in the running app.
 
-## 🚀 Quick Start
+## Contributing
 
-For local development or customization:
+Issues and pull requests are welcome. Please see `docs/CONTRIBUTING.md` for coding standards and translation tips.
 
-1. Clone this repository  
-2. Install dependencies
+## Privacy and accessibility
 
-```r
-install.packages(c("shiny", "rhandsontable", "DT", "readxl", "shinythemes", "shinyBS"))
-```
+- Data never leaves your browser. Nothing is logged, stored, or transmitted.
+- The UI follows accessibility best practices (color contrast, keyboard navigation, alt text). Report gaps so we can improve.
 
-3. Launch the app in RStudio
+## Documentation and support
 
-```r
-shiny::runApp("app.R")
-```
-
----
-
-## 📁 Folder Structure
-
-- `app.R`: main app file
-- `www/`: contains logo and static assets
-- `docs/`: project documentation
-  - `QUICK_START.md`: step-by-step usage guide
-  - `CONTRIBUTING.md`: contributor guide
-  - `architecture.md` : description of software architecture
-- `CodebookGenerator_Deploy.qmd`: compiles the app as stand-alone resource using shinylive 
-- `CITATION.cff`: citation metadata
-- `Dockerfile`: container deployment
+- English one-pager: https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_en.html  
+- French one-pager: https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_fr.html  
+- Feedback or translation updates: `curators@frdr-dfdr.ca`
 
 ---
 
-## 🧑‍💻 Contributing
+# Application Codebook Generator
 
-We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on submitting pull requests, translation files, and feature improvements.
+L'application Codebook Generator aide les equipes de recherche et de gestion des donnees a documenter leurs tableaux (CSV, TSV, XLSX). Construite avec R et Shiny, elle inclut maintenant un selecteur de langue qui bascule instantanement toute l'interface entre l'anglais et le francais. Vous pouvez l'executer en mode client via Shinylive ou sur un serveur Shiny classique.
 
----
+## Application en ligne
 
-## 🔏 Privacy
+Version Shinylive bilingue : https://alliance-rdm-gdr.github.io/RDM_Codebook_App/
 
-All data stays in your browser. No information is uploaded or tracked.
+## Fonctionnalites
 
----
+- Televerser des fichiers CSV, TSV ou XLSX (jusqu'a 30 Mo) et les previsualiser immediatement.
+- Detecter automatiquement les types de variables, les plages min/max, les niveaux de facteurs et les valeurs manquantes.
+- Modifier les libelles, types et unites dans un `rhandsontable` interactif.
+- Telecharger le dictionnaire final au format CSV avec un nom localise.
+- Utiliser le selecteur de langue dans la barre laterale sans recharger la session.
+- Aucune persistance des donnees : tout reste en memoire volatile du navigateur.
 
-## ♿ Accessibility
+## Demarrage rapide
 
-We aim to follow WCAG best practices. Color contrast, keyboard navigation, and alt text have been tested. Feedback is welcome to further improve accessibility.
+1. Cloner le depot  
+   `git clone https://github.com/Alliance-RDM-GDR/RDM_Codebook_App`
+2. Installer les dependances R  
+   ```r
+   install.packages(c(
+     "shiny","shinyjs","shinythemes","shinyBS",
+     "rhandsontable","readxl","DT"
+   ))
+   ```
+3. Lancer l'application  
+   `shiny::runApp()`
 
----
+Consultez `docs/QuickStart.md` pour les instructions Docker et les details supplementaires.
 
-## 📄 Citation
+## Structure des dossiers
 
-If you use this app in your research or teaching, please cite it using the [CITATION.cff](CITATION.cff) file in the repository.
+- `app.R` - Application Shiny principale avec dictionnaire de traduction.
+- `www/` - Logos et ressources statiques.
+- `docs/` - Architecture, guide de demarrage bilingue et autres references.
+- `CodebookGenerator_Deploy.qmd` - Script pour generer le paquet Shinylive.
+- `requirements.txt` / `environment.yml` - Specifications d'environnement reproductibles.
+- `Dockerfile` - Construction du conteneur.
 
-Manrique-Castano, D. & FRDR curation team. Codebook Generator App. (Version 2025-09). Zenodo. https://doi.org/10.5281/zenodo.17094365
+## Mise a jour des traductions
 
----
+Toutes les chaines se trouvent dans la liste `translations` au debut de `app.R`. Chaque cle doit etre definie en anglais et en francais. Mettez a jour les deux versions lorsque vous ajoutez un nouveau texte, puis testez les deux langues dans l'application.
 
-## 📚 Documentation
+## Contribution
 
-See the full user guide [here](https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_en.html)  
+Les contributions sont les bienvenues. Consultez `docs/CONTRIBUTING.md` pour connaitre les normes de code et les conseils relatifs a la traduction.
 
----
+## Confidentialite et accessibilite
 
-# Générateur de dictionnaires de données
+- Les donnees ne quittent jamais votre navigateur. Rien n'est journalise ni stocke.
+- L'interface suit les bonnes pratiques d'accessibilite (contraste, navigation clavier, texte alternatif). Signalez-nous toute lacune pour que nous puissions l'ameliorer.
 
-**Bienvenue dans le Générateur de dictionnaires de données !**
+## Documentation et soutien
 
-Cet outil aide les chercheuses, chercheurs et praticiens de la gestion des données de recherche à créer rapidement des dictionnaires de données (« codebooks ») pour des tables de données (CSV, TSV ou XLSX). Construit avec R et Shiny, il s’exécute entièrement dans votre navigateur grâce à Shinylive, sans serveur ni téléversement de données.
-
----
-
-## 🌐 Application en ligne
-
-Accédez à l’application ici :  
-➡️ **[Générateur de dictionnaires de données (Shinylive)](https://alliance-rdm-gdr.github.io/RDM_Codebook_App/)**
-
----
-
-## ✨ Fonctionnalités
-
-- **Exécution côté client** avec Shinylive (basé sur WebAssembly)
-- **Téléversement** de fichiers CSV, TSV ou XLSX jusqu’à 30 Mo
-- **Analyse automatique** des types de variables et des valeurs manquantes
-- **Champs modifiables** pour :
-  - **Libellé** de la variable
-  - **Type** de la variable (`numeric`, `character`, `factor`, `date`)
-  - **Unités**
-- **Génération dynamique** de :
-  - **Range_or_Levels**: min/max pour les numériques ou liste des niveaux pour les facteurs
-  - **Missing_Values**: comptage des `NA`, `na`, `n/a`, ou cases vides
-- **Téléchargement** du dictionnaire final au format `.csv`
-- **Aucune conservation des données :** tout le traitement se fait localement dans votre navigateur
-
----
-
-## 📦 Exemple de dictionnaire de données
-
-| **Variable**  | **Label**            | **Type**  | **Range_or_Levels** | **Missing_Values**  | **Units** |
-|---------------|----------------------|---------- |---------------------|---------------------|-----------|
-| Stage         | Experimental stage   | Factor    | 1, 2, 3, 4          | NA                  | NA        |
-| Intervention  | Intervention Group   | Factor    | G1, G2, G3          | NA                  | NA        |
-| Age           | Participant age      | Numeric   | 18 - 26             | 1                   | Years     |
-| Sex           | Biological sex       | Factor    | Men, Women          | NA                  | NA        |
-| Score         | Cognitive score      | Numeric   | 1 - 20              | NA                  | AU        |
-
----
-
-## 🚀 Démarrage rapide
-
-Pour le développement local ou la personnalisation :
-
-1. Cloner ce dépôt
-2. Installer les dépendances
-
-```r
-install.packages(c("shiny", "rhandsontable", "DT", "readxl", "shinythemes", "shinyBS"))
-```
-
-3. Lancer l’application dans RStudio
-
-```r
-shiny::runApp("app.R")
-```
-
----
-
-## 📁 Folder Structure
-
-- `app.R`: fichier principal de l’application
-- `www/`: logo et ressources statiques
-- `docs/`: documentation du projet
-  - `QUICK_START.md`: guide d’utilisation pas à pas
-  - `CONTRIBUTING.md`: guide du contributeur
-  - `architecture.md` : description de l'architecture logicielle
-- `CodebookGenerator_Deploy.qmd`:compile l'application en tant que ressource autonome à l'aide de shinylive 
-- `CITATION.cff`: citation metadata
-- `Dockerfile`: déploiement en conteneur
-
----
-
-## 🧑‍💻 Contribution
-
-Les contributions sont les bienvenues ! Voir [CONTRIBUTING.md](docs/CONTRIBUTING.md) pour les indications concernant les propositions de modifications, les traductions et les améliorations de fonctionnalités.
-
----
-
-## 🔏 Confidentialité
-
-Toutes les données restent dans votre navigateur. Aucune information n’est téléversée ni suivie.
-
----
-
-## ♿ Accessibilité
-
-Objectif d’alignement avec les bonnes pratiques WCAG. Le contraste des couleurs, la navigation au clavier et le texte de remplacement (alt text) ont été vérifiés. Vos retours sont bienvenus pour améliorer encore l’accessibilité.
-
----
-
-## 📄 Citation
-
-Si vous utilisez cette application dans vos cours ou vos recherches, veuillez la citer à l’aide du fichier [CITATION.cff](CITATION.cff) du dépôt.
-
-Manrique-Castano, D. & FRDR curation team. Générateur de dictionnaires de données. (Version 2025-09). Zenodo. https://doi.org/10.5281/zenodo.17094365
-
----
-
-## 📚 Documentation
-
-Consultez le guide [utilisateur complet](https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_fr.html)  
-
+- Fiche anglaise : https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_en.html  
+- Fiche francaise : https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_fr.html  
+- Commentaires ou mises a jour de traduction : `curators@frdr-dfdr.ca`
