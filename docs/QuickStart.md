@@ -69,32 +69,32 @@ For feedback, feature ideas, or translation updates, email `curators@frdr-dfdr.c
 
 ---
 
-# Application Codebook Generator : Guide de demarrage rapide
+# Application de génération de dictionnaires de données : guide de démarrage rapide
 
-Bienvenue dans l'application Codebook Generator! Ce guide explique comment executer l'interface bilingue (anglais/francais) en ligne, dans RStudio ou avec Docker.
+Bienvenue dans l’application de génération de dictionnaires de données ! Ce guide explique comment utiliser l’interface bilingue (français/anglais), que ce soit via le site hébergé, RStudio ou Docker.
 
 ## Utiliser l'application en ligne
 
-Version bilingue hebergee :
+Utilisez la version bilingue en ligne :
 
 https://alliance-rdm-gdr.github.io/RDM_Codebook_App/
 
 Aucune installation n'est requise.
 
-## Utiliser RStudio en local
+## Exécuter l’application localement (RStudio)
 
-### 1. Cloner le depot
+### 1. Cloner le dépôt
 
 ```bash
 git clone https://github.com/Alliance-RDM-GDR/RDM_Codebook_App
 cd RDM_Codebook_App
 ```
 
-Vous pouvez aussi telecharger l'archive ZIP et la decompresser.
+Ou télécharger l’archive ZIP et la décompresser.
 
-### 2. Installer les dependances
+### 2. Installer les dépendances
 
-Dans R ou RStudio, lancez :
+Ouvrez R ou RStudio dans le dossier du projet, puis exécutez les commandes nécessaires. 
 
 ```r
 install.packages(c(
@@ -103,23 +103,23 @@ install.packages(c(
 ))
 ```
 
-Toute la traduction se trouve dans la liste `translations` de `app.R`, il n'est donc pas necessaire d'ajouter une bibliotheque i18n.
+Tous les textes bilingues se trouvent dans la liste de traductions du fichier app.R; aucune bibliothèque d’internationalisation supplémentaire n’est requise.
 
-### 3. Demarrer l'application
+### 3. Lancer l’application
 
 ```r
 shiny::runApp()
 ```
 
-## Utiliser Docker (optionnel)
+## Exécuter avec Docker (facultatif)
 
-### 1. Construire l'image
+### 1. Construire l’image
 
 ```bash
 docker build -t codebook-app .
 ```
 
-### 2. Demarrer le conteneur
+### 2. Lancer le conteneur
 
 ```bash
 docker run -p 3838:3838 codebook-app
@@ -131,9 +131,9 @@ Ensuite ouvrez `http://localhost:3838` dans votre navigateur.
 
 - `app.R` - Application principale et dictionnaire de traduction.
 - `www/` - Logos et autres fichiers statiques.
-- `requirements.txt` - Liste pour la construction Shinylive.
-- `Dockerfile` - Recette du conteneur.
+- `requirements.txt` - Dépendances pour les versions Shinylive.
+- `Dockerfile` - Configuration du conteneur.
 
-## Contact et soutien
+## Besoin d’aide ?
 
-Pour vos commentaires, nouvelles fonctions ou ajouts de traduction : `curators@frdr-dfdr.ca`.
+Pour toute question, suggestion ou proposition d’amélioration, veuillez écrire à : `curators@frdr-dfdr.ca`.
