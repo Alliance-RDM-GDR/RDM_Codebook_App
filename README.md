@@ -63,61 +63,62 @@ Issues and pull requests are welcome. Please see `docs/CONTRIBUTING.md` for codi
 
 # Application Codebook Generator
 
-L'application Codebook Generator aide les equipes de recherche et de gestion des donnees a documenter leurs tableaux (CSV, TSV, XLSX). Construite avec R et Shiny, elle inclut maintenant un selecteur de langue qui bascule instantanement toute l'interface entre l'anglais et le francais. Vous pouvez l'executer en mode client via Shinylive ou sur un serveur Shiny classique.
+L’application Codebook Generator aide les équipes de recherche et de gestion des données à documenter leurs jeux de données tabulaires (CSV, TSV, XLSX). Développée avec R et Shiny, l’application intègre désormais un sélecteur de langue permettant de basculer instantanément l’ensemble des éléments de l’interface entre l’anglais et le français. Elle peut fonctionner entièrement côté client grâce à Shinylive ou être déployée sur un serveur Shiny standard.
 
 ## Application en ligne
 
 Version Shinylive bilingue : https://alliance-rdm-gdr.github.io/RDM_Codebook_App/
 
-## Fonctionnalites
+## Fonctionnalités
 
-- Televerser des fichiers CSV, TSV ou XLSX (jusqu'a 30 Mo) et les previsualiser immediatement.
-- Detecter automatiquement les types de variables, les plages min/max, les niveaux de facteurs et les valeurs manquantes.
-- Modifier les libelles, types et unites dans un `rhandsontable` interactif.
-- Telecharger le dictionnaire final au format CSV avec un nom localise.
-- Utiliser le selecteur de langue dans la barre laterale sans recharger la session.
-- Aucune persistance des donnees : tout reste en memoire volatile du navigateur.
+-	Téléverser r des fichiers CSV, TSV ou XLSX (jusqu’à 30 Mo) et les prévisualiser immédiatement.
+-	Détecter automatiquement les types de variables, les plages min/max, les niveaux de facteurs et les valeurs manquantes.
+-	Modifier les libellés, les types et les unités.
+-	Télécharger le dictionnaire de données au format CSV et l’enregistrer localement.
+-	Utiliser le bouton de bascule de la barre latérale pour passer de l’anglais au français sans recharger la session.
+-	Aucune persistance des données — les fichiers demeurent uniquement en mémoire volatile.
 
-## Demarrage rapide
 
-1. Cloner le depot  
+## Démarrage rapide 
+
+1. 1.	Cloner le dépôt  
    `git clone https://github.com/Alliance-RDM-GDR/RDM_Codebook_App`
-2. Installer les dependances R  
+2. 2.	Installer les dépendances R  
    ```r
    install.packages(c(
      "shiny","shinyjs","shinythemes","shinyBS",
      "rhandsontable","readxl","DT"
    ))
    ```
-3. Lancer l'application  
+3. Lancer l’application  
    `shiny::runApp()`
 
-Consultez `docs/QuickStart.md` pour les instructions Docker et les details supplementaires.
+Voir `docs/QuickStart.md` pour les instructions Docker et plus de détails.
 
-## Structure des dossiers
+## Structure des répertoires : 
 
 - `app.R` - Application Shiny principale avec dictionnaire de traduction.
 - `www/` - Logos et ressources statiques.
-- `docs/` - Architecture, guide de demarrage bilingue et autres references.
-- `CodebookGenerator_Deploy.qmd` - Script pour generer le paquet Shinylive.
-- `requirements.txt` / `environment.yml` - Specifications d'environnement reproductibles.
+- `docs/` - Architecture, guide de démarrage bilingue et autres références.
+- `CodebookGenerator_Deploy.qmd` - Script pour générer le paquet Shinylive.
+- `requirements.txt` / `environment.yml` - Spécifications d’environnement reproductibles.
 - `Dockerfile` - Construction du conteneur.
 
-## Mise a jour des traductions
+## Mise à jour des traductions
 
-Toutes les chaines se trouvent dans la liste `translations` au debut de `app.R`. Chaque cle doit etre definie en anglais et en francais. Mettez a jour les deux versions lorsque vous ajoutez un nouveau texte, puis testez les deux langues dans l'application.
+Chacune des chaînes de texte se trouve dans la liste des traductions du fichier app. R. Chaque clé comporte une version anglaise et une version française. Lors de l’ajout de nouveaux éléments d’interface, veillez à mettre à jour les deux versions, puis à vérifier les deux langues dans l’application en cours d’exécution.
 
 ## Contribution
 
-Les contributions sont les bienvenues. Consultez `docs/CONTRIBUTING.md` pour connaitre les normes de code et les conseils relatifs a la traduction.
+•	Les contributions sont les bienvenues. Veuillez consulter le fichier docs/CONTRIBUTING.md pour prendre connaissance des normes de codage et des lignes directrices en matière de traduction.
 
-## Confidentialite et accessibilite
+## Confidentialité et accessibilité
 
-- Les donnees ne quittent jamais votre navigateur. Rien n'est journalise ni stocke.
-- L'interface suit les bonnes pratiques d'accessibilite (contraste, navigation clavier, texte alternatif). Signalez-nous toute lacune pour que nous puissions l'ameliorer.
+- Les données ne quittent jamais votre navigateur. Aucune information n’est enregistrée, stockée ou transmise.
+- L’interface respecte les bonnes pratiques en matière d’accessibilité (contraste des couleurs, navigation au clavier, textes alternatifs). Merci de signaler toute lacune afin que nous puissions améliorer l’expérience.
 
 ## Documentation et soutien
 
 - Fiche anglaise : https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_en.html  
 - Fiche francaise : https://alliance-rdm-gdr.github.io/CUR_Res_OnePagers/RDM_Codebook_fr.html  
-- Commentaires ou mises a jour de traduction : `curators@frdr-dfdr.ca`
+- •	Commentaires ou mises à jour de traduction : `curators@frdr-dfdr.ca`
