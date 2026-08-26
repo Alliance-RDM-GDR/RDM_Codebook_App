@@ -4,3 +4,12 @@
 .Ruserdata
 SMP_CodebookApp.docx
 CodebookGenerator_Deploy_files/
+
+# Full Shinylive export (100+ MB, too large for GitHub).
+# Only its app.json (the small per-app manifest) is copied to the
+# project root and committed there; see CodebookGenerator_Deploy.qmd.
+WebApp/
+
+# Local scratch / working files not needed to build or deploy the app
+New folder/
+CodeBook - TestPlan and Result v1.docx

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Untitled</title>
+<title>Render the codebook generator app using shiny live</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -79,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Untitled</h1>
+<h1 class="title">Render the codebook generator app using shiny live</h1>
 </div>
 
 
@@ -103,27 +103,103 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'here' was built under R version 4.4.2</code></pre>
+<pre><code>Warning: package 'here' was built under R version 4.4.3</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>here() starts at D:/Alliance/RDM/RDM_Codebook_App</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set Shiny app directory</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>app_dir <span class="ot">&lt;-</span> <span class="fu">here</span>()</span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>project_root <span class="ot">&lt;-</span> <span class="fu">here</span>()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>staging_dir  <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"codebook_shinylive"</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the output directory</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="fu">here</span>()</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Export the app</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>shinylive<span class="sc">::</span><span class="fu">export</span>(app_dir, <span class="at">destdir =</span> output_dir)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean + recreate the staging directory</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">dir.exists</span>(staging_dir)) <span class="fu">unlink</span>(staging_dir, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">force =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(staging_dir, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Copy only runtime files</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">file.copy</span>(<span class="fu">file.path</span>(project_root, <span class="st">"app.R"</span>), staging_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="fu">file.path</span>(staging_dir, <span class="st">"www"</span>), <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">file.copy</span>(<span class="fu">list.files</span>(<span class="fu">file.path</span>(project_root, <span class="st">"www"</span>), <span class="at">full.names =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">file.path</span>(staging_dir, <span class="st">"www"</span>), <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (Optional) include lightweight docs/metadata</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">file.copy</span>(<span class="fu">file.path</span>(project_root, <span class="st">"README.md"</span>), staging_dir, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Export the staged mini-app</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>output_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(project_root, <span class="st">"WebApp"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>shinylive<span class="sc">::</span><span class="fu">export</span>(<span class="at">appdir =</span> staging_dir, <span class="at">destdir =</span> output_dir)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>ℹ Loading metadata database</code></pre>
+<pre><code></code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>✔ Loading metadata database ... done</code></pre>
+<pre><code>✔ Updated metadata database: 3.43 MB in 3 files.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code></code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>ℹ Updating metadata database</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ Updating metadata database ... done</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Package version mismatch for DT, ensure the versions below are compatible.
+! Installed version: 0.34.0, WebAssembly version: 0.33.
+ℹ Install a package version matching the WebAssembly version to silence this
+  error.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Package version mismatch for shinyBS, ensure the versions below are compatible.
+! Installed version: 0.63.0, WebAssembly version: 0.61.1.
+ℹ Install a package version matching the WebAssembly version to silence this
+  error.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Package version mismatch for knitr, ensure the versions below are compatible.
+! Installed version: 1.51, WebAssembly version: 1.50.
+ℹ Install a package version matching the WebAssembly version to silence this
+  error.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Package version mismatch for rmarkdown, ensure the versions below are
+compatible.
+! Installed version: 2.30, WebAssembly version: 2.29.
+ℹ Install a package version matching the WebAssembly version to silence this
+  error.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Package version mismatch for tinytex, ensure the versions below are compatible.
+! Installed version: 0.58, WebAssembly version: 0.57.
+ℹ Install a package version matching the WebAssembly version to silence this
+  error.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Package version mismatch for xfun, ensure the versions below are compatible.
+! Installed version: 0.55, WebAssembly version: 0.52.
+ℹ Install a package version matching the WebAssembly version to silence this
+  error.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Package version mismatch for pillar, ensure the versions below are compatible.
+! Installed version: 1.11.1, WebAssembly version: 1.10.2.
+ℹ Install a package version matching the WebAssembly version to silence this
+  error.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Package version mismatch for tibble, ensure the versions below are compatible.
+! Installed version: 3.3.0, WebAssembly version: 3.2.1.
+ℹ Install a package version matching the WebAssembly version to silence this
+  error.</code></pre>
 </div>
 </div>
 

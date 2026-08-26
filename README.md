@@ -9,7 +9,7 @@ Launch the bilingual Shinylive build: https://alliance-rdm-gdr.github.io/RDM_Cod
 ## Features
 
 - Upload CSV, TSV, or XLSX files up to 30 MB and preview them immediately.
-- Auto-detect variable types, min/max ranges, factor levels, and missing values.
+- Auto-detect variable types, min/max ranges, factor levels, and missing values. Common missing-value markers (`NA`, `N/A`, `na`, `n/a`, case-insensitive) are normalized before type detection, so a numeric column that uses them for missing cells is still recognized as numeric.
 - Edit labels, types, and units in an interactive `rhandsontable`.
 - Download the finished codebook as CSV with localized filenames.
 - Sidebar toggle switches between English and French without reloading the session.
@@ -39,6 +39,22 @@ See `docs/QuickStart.md` for Docker instructions and additional details.
 - `CodebookGenerator_Deploy.qmd` - Script for creating the Shinylive bundle.
 - `requirements.txt` / `environment.yml` - Reproducible environment specs.
 - `Dockerfile` - Container build file.
+- `index.html`, `edit/`, `shinylive/`, `shinylive-sw.js`, `app.json` - The deployed Shinylive site served by GitHub Pages from the repository root. See "Rebuilding and deploying the live app" below before editing `app.json` directly.
+
+## Rebuilding and deploying the live app
+
+The live app at https://alliance-rdm-gdr.github.io/RDM_Codebook_App/ is a static Shinylive export. `index.html` and the `shinylive/` runtime rarely change, but **`app.json` embeds the current `app.R` source and must be regenerated any time `app.R` changes**, or the live site will keep running the old code.
+
+1. Render the export script (requires R, Quarto, and the `shinylive` package):
+   ```r
+   quarto::quarto_render("CodebookGenerator_Deploy.qmd")
+   ```
+   This runs `shinylive::export()` into a local `WebApp/` folder. That folder is a full Shinylive bundle (~70-100+ MB with the webR runtime and packages) and is git-ignored — it is too large to commit to GitHub.
+2. Copy only the small manifest out of it to the project root:
+   ```bash
+   cp WebApp/app.json app.json
+   ```
+3. Commit the updated `app.json` (and `CodebookGenerator_Deploy.html`, which Quarto also regenerates). Do not commit the `WebApp/` folder itself.
 
 ## Updating translations
 
@@ -72,7 +88,7 @@ Version Shinylive bilingue : https://alliance-rdm-gdr.github.io/RDM_Codebook_App
 ## Fonctionnalités
 
 -	Téléverser r des fichiers CSV, TSV ou XLSX (jusqu’à 30 Mo) et les prévisualiser immédiatement.
--	Détecter automatiquement les types de variables, les plages min/max, les niveaux de facteurs et les valeurs manquantes.
+-	Détecter automatiquement les types de variables, les plages min/max, les niveaux de facteurs et les valeurs manquantes. Les marqueurs courants de valeurs manquantes (`NA`, `N/A`, `na`, `n/a`, sans distinction de casse) sont normalisés avant la détection du type, afin qu'une colonne numérique les utilisant pour ses cellules manquantes soit tout de même reconnue comme numérique.
 -	Modifier les libellés, les types et les unités.
 -	Télécharger le dictionnaire de données au format CSV et l’enregistrer localement.
 -	Utiliser le bouton de bascule de la barre latérale pour passer de l’anglais au français sans recharger la session.
@@ -103,6 +119,22 @@ Voir `docs/QuickStart.md` pour les instructions Docker et plus de détails.
 - `CodebookGenerator_Deploy.qmd` - Script pour générer le paquet Shinylive.
 - `requirements.txt` / `environment.yml` - Spécifications d’environnement reproductibles.
 - `Dockerfile` - Construction du conteneur.
+- `index.html`, `edit/`, `shinylive/`, `shinylive-sw.js`, `app.json` - Le site Shinylive déployé, servi par GitHub Pages depuis la racine du dépôt. Voir « Reconstruire et déployer l'application en ligne » ci-dessous avant de modifier `app.json` directement.
+
+## Reconstruire et déployer l'application en ligne
+
+L'application en ligne à https://alliance-rdm-gdr.github.io/RDM_Codebook_App/ est un export Shinylive statique. `index.html` et l'environnement `shinylive/` changent rarement, mais **`app.json` intègre le code source actuel de `app.R` et doit être régénéré à chaque modification de `app.R`**, sinon le site en ligne continuera d'exécuter l'ancien code.
+
+1. Exécuter le script d'export (nécessite R, Quarto et le paquet `shinylive`) :
+   ```r
+   quarto::quarto_render("CodebookGenerator_Deploy.qmd")
+   ```
+   Cela lance `shinylive::export()` dans un dossier local `WebApp/`. Ce dossier est un paquet Shinylive complet (environ 70 à 100+ Mo avec l'environnement webR et les paquets) et est exclu de Git — il est trop volumineux pour être ajouté à GitHub.
+2. Copier uniquement le petit fichier manifeste vers la racine du projet :
+   ```bash
+   cp WebApp/app.json app.json
+   ```
+3. Valider (« commit ») le fichier `app.json` mis à jour (ainsi que `CodebookGenerator_Deploy.html`, également régénéré par Quarto). Ne pas valider le dossier `WebApp/` lui-même.
 
 ## Mise à jour des traductions
 

@@ -185,6 +185,29 @@ describe_missing_values <- function(column, lang) {
   }
 }
 
+normalize_missing_tokens <- function(df) {
+  missing_strings <- c("na", "n/a")
+  for (col_name in names(df)) {
+    col <- df[[col_name]]
+    if (!is.character(col) && !is.factor(col)) next
+
+    col_char <- as.character(col)
+    col_lower <- tolower(trimws(col_char))
+    is_missing_token <- !is.na(col_char) & col_lower %in% missing_strings
+    col_char[is_missing_token] <- NA
+
+    non_missing <- col_char[!is.na(col_char)]
+    if (length(non_missing) > 0) {
+      as_num <- suppressWarnings(as.numeric(non_missing))
+      if (!any(is.na(as_num))) {
+        col_char <- suppressWarnings(as.numeric(col_char))
+      }
+    }
+    df[[col_name]] <- col_char
+  }
+  df
+}
+
 restore_attribute_column_names <- function(df, lang) {
   if (is.null(df)) {
     return(df)
@@ -474,9 +497,11 @@ server <- function(input, output, session) {
       ))
       return(NULL)
     }
-    
+
+    df <- normalize_missing_tokens(df)
+
     data(df)
-    
+
     # Map variable types to predefined levels
     mapped_types <- sapply(df, function(x) {
       t <- class(x)[1]

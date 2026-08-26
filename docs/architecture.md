@@ -16,7 +16,11 @@ The interface is split into two main regions:
 Logic is separated into two layers:
 
 * The **UI layer** defines the layout and dynamically renders text based on user actions plus the selected language. A lightweight translation dictionary and helper functions in `app.R` keep both languages synchronized.
-* The **Server layer** parses uploads, derives metadata, tracks table edits, and pushes translated content back to the UI.
+* The **Server layer** parses uploads, derives metadata, tracks table edits, and pushes translated content back to the UI. Before variable types are inferred, common missing-value markers (`NA`, `N/A`, `na`, `n/a`, case-insensitive) are normalized to real `NA` values and numeric columns are re-cast; this keeps a numeric column from being misclassified as character just because missing cells were typed as text.
+
+## Deployment
+
+The live site (served by GitHub Pages from the repository root) is a static Shinylive export. `CodebookGenerator_Deploy.qmd` drives `shinylive::export()`, which writes a full bundle (including the webR runtime and R packages, ~70-100+ MB) to a local `WebApp/` folder that is git-ignored. Only `WebApp/app.json` — the small manifest embedding the current `app.R` source — is copied to the project root and committed, alongside the matching `index.html`/`shinylive/` runtime files. See the README's "Rebuilding and deploying the live app" section for the exact steps; skipping this step after an `app.R` change leaves the deployed app running stale code.
 
 ## Platform Compatibility
 
