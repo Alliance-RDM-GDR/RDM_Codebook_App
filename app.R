@@ -8,6 +8,38 @@ library(shinyBS)
 
 options(shiny.maxRequestSize = 30 * 1024^2)
 
+# Reads raw bytes to determine whether an upload is valid UTF-8 or a
+# legacy 8-bit encoding (the common case for CSV/TSV files exported by
+# Excel on Windows, or by older tools), so accented characters in
+# French data don't turn into garbled text regardless of how the file
+# was saved. "latin1" is used as the fallback rather than "CP1252"
+# because it's one of the encodings R supports natively on every
+# platform (including the WebR/Shinylive sandbox); it decodes accented
+# Latin letters identically to CP1252, only differing in a handful of
+# punctuation marks (curly quotes, em dash) in the 0x80-0x9F range.
+detect_file_encoding <- function(path) {
+  raw_bytes <- tryCatch(
+    readBin(path, what = "raw", n = min(file.info(path)$size, 2e6)),
+    error = function(e) raw(0)
+  )
+  if (length(raw_bytes) == 0) {
+    return("UTF-8")
+  }
+  text <- tryCatch(rawToChar(raw_bytes[raw_bytes != as.raw(0)]), error = function(e) NA_character_)
+  if (!is.na(text) && isTRUE(validUTF8(text))) "UTF-8" else "latin1"
+}
+
+# Reads a CSV/TSV upload with its detected encoding and strips a
+# leading byte-order-mark character some editors leave on the first
+# header when saving as "UTF-8 with BOM".
+read_uploaded_table <- function(path, reader) {
+  encoding <- detect_file_encoding(path)
+  df <- reader(path, stringsAsFactors = FALSE, fileEncoding = encoding)
+  bom_char <- intToUtf8(0xFEFF)
+  names(df)[1] <- sub(paste0("^", bom_char), "", names(df)[1])
+  df
+}
+
 translations <- list(
   en = list(
     app_title = "Codebook generator for data tables",
@@ -717,9 +749,9 @@ server <- function(input, output, session) {
     file_ext <- tools::file_ext(input$datafile$name)
     
     if (file_ext == "csv") {
-      df <- read.csv(input$datafile$datapath, stringsAsFactors = FALSE)
+      df <- read_uploaded_table(input$datafile$datapath, read.csv)
     } else if (file_ext == "tsv") {
-      df <- read.delim(input$datafile$datapath, stringsAsFactors = FALSE)
+      df <- read_uploaded_table(input$datafile$datapath, read.delim)
     } else if (file_ext %in% c("xlsx")) {
       df <- read_excel(input$datafile$datapath)
       df <- as.data.frame(df)
@@ -758,7 +790,7 @@ server <- function(input, output, session) {
   observeEvent(input$previous_codebook_file, {
     req(input$previous_codebook_file)
     prev_df <- tryCatch(
-      read.csv(input$previous_codebook_file$datapath, stringsAsFactors = FALSE),
+      read_uploaded_table(input$previous_codebook_file$datapath, read.csv),
       error = function(e) NULL
     )
     lookup <- if (is.null(prev_df)) NULL else build_codebook_lookup(prev_df)

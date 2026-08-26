@@ -8,7 +8,7 @@ Launch the bilingual Shinylive build: https://alliance-rdm-gdr.github.io/RDM_Cod
 
 ## Features
 
-- Upload CSV, TSV, or XLSX files up to 30 MB and preview them immediately.
+- Upload CSV, TSV, or XLSX files up to 30 MB and preview them immediately. CSV/TSV encoding (UTF-8 or legacy Latin-1/Windows-1252) is auto-detected, so accented characters in French data stay correct regardless of which program exported the file.
 - Auto-detect variable types, min/max ranges, factor levels, and missing values. Common missing-value markers (`NA`, `N/A`, `na`, `n/a`, case-insensitive) are normalized before type detection, so a numeric column that uses them for missing cells is still recognized as numeric.
 - Auto-detect date columns written as `YYYY-MM-DD`, `YYYY/MM/DD`, `DD/MM/YYYY`, `MM/DD/YYYY`, or with `-` separators, without needing a numeric-only pattern that could be confused with an ID.
 - Add your own missing-value markers (e.g. `-99, 999, unknown`) in the sidebar — comma-separated, case-insensitive, and applied to both text and numeric columns — so type detection and missing-value counts reflect your dataset's own conventions, not just `NA`/`N/A`.
@@ -90,7 +90,7 @@ Version Shinylive bilingue : https://alliance-rdm-gdr.github.io/RDM_Codebook_App
 
 ## Fonctionnalités
 
--	Téléverser r des fichiers CSV, TSV ou XLSX (jusqu’à 30 Mo) et les prévisualiser immédiatement.
+-	Téléverser des fichiers CSV, TSV ou XLSX (jusqu’à 30 Mo) et les prévisualiser immédiatement. L’encodage des fichiers CSV/TSV (UTF-8 ou Latin-1/Windows-1252) est détecté automatiquement, afin que les caractères accentués des données en français restent corrects peu importe le logiciel utilisé pour exporter le fichier.
 -	Détecter automatiquement les types de variables, les plages min/max, les niveaux de facteurs et les valeurs manquantes. Les marqueurs courants de valeurs manquantes (`NA`, `N/A`, `na`, `n/a`, sans distinction de casse) sont normalisés avant la détection du type, afin qu'une colonne numérique les utilisant pour ses cellules manquantes soit tout de même reconnue comme numérique.
 -	Détecter automatiquement les colonnes de dates écrites au format `AAAA-MM-JJ`, `AAAA/MM/JJ`, `JJ/MM/AAAA`, `MM/JJ/AAAA`, ou avec des séparateurs `-`, sans se fier à un format uniquement numérique qui pourrait être confondu avec un identifiant.
 -	Ajouter vos propres marqueurs de valeurs manquantes (ex. : `-99, 999, inconnu`) dans le panneau latéral — séparés par des virgules, sans distinction de casse, et appliqués aux colonnes texte comme numériques — afin que la détection du type et le compte des valeurs manquantes reflètent les conventions propres à votre jeu de données, pas seulement `NA`/`N/A`.
