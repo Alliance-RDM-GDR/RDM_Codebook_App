@@ -12,6 +12,7 @@ Launch the bilingual Shinylive build: https://alliance-rdm-gdr.github.io/RDM_Cod
 - Auto-detect variable types, min/max ranges, factor levels, and missing values. Common missing-value markers (`NA`, `N/A`, `na`, `n/a`, case-insensitive) are normalized before type detection, so a numeric column that uses them for missing cells is still recognized as numeric.
 - Auto-detect date columns written as `YYYY-MM-DD`, `YYYY/MM/DD`, `DD/MM/YYYY`, `MM/DD/YYYY`, or with `-` separators, without needing a numeric-only pattern that could be confused with an ID.
 - Add your own missing-value markers (e.g. `-99, 999, unknown`) in the sidebar — comma-separated, case-insensitive, and applied to both text and numeric columns — so type detection and missing-value counts reflect your dataset's own conventions, not just `NA`/`N/A`.
+- Re-upload a previously exported codebook to prefill matching variables' Label and Units, so re-documenting an updated dataset doesn't mean retyping everything from scratch. Matched by variable name, in either supported language.
 - Edit labels, types, and units in an interactive `rhandsontable`.
 - Download the finished codebook as CSV with localized filenames.
 - Sidebar toggle switches between English and French without reloading the session.
@@ -93,6 +94,7 @@ Version Shinylive bilingue : https://alliance-rdm-gdr.github.io/RDM_Codebook_App
 -	Détecter automatiquement les types de variables, les plages min/max, les niveaux de facteurs et les valeurs manquantes. Les marqueurs courants de valeurs manquantes (`NA`, `N/A`, `na`, `n/a`, sans distinction de casse) sont normalisés avant la détection du type, afin qu'une colonne numérique les utilisant pour ses cellules manquantes soit tout de même reconnue comme numérique.
 -	Détecter automatiquement les colonnes de dates écrites au format `AAAA-MM-JJ`, `AAAA/MM/JJ`, `JJ/MM/AAAA`, `MM/JJ/AAAA`, ou avec des séparateurs `-`, sans se fier à un format uniquement numérique qui pourrait être confondu avec un identifiant.
 -	Ajouter vos propres marqueurs de valeurs manquantes (ex. : `-99, 999, inconnu`) dans le panneau latéral — séparés par des virgules, sans distinction de casse, et appliqués aux colonnes texte comme numériques — afin que la détection du type et le compte des valeurs manquantes reflètent les conventions propres à votre jeu de données, pas seulement `NA`/`N/A`.
+-	Reprendre un dictionnaire précédemment exporté pour préremplir les colonnes Étiquette et Unités des variables correspondantes, afin de ne pas tout retaper lors de la mise à jour d'un jeu de données déjà documenté. La correspondance se fait par nom de variable, dans l'une ou l'autre langue prise en charge.
 -	Modifier les libellés, les types et les unités.
 -	Télécharger le dictionnaire de données au format CSV et l’enregistrer localement.
 -	Utiliser le bouton de bascule de la barre latérale pour passer de l’anglais au français sans recharger la session.

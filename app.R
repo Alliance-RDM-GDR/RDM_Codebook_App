@@ -42,6 +42,8 @@ translations <- list(
     missing_tokens_label = "Custom missing value markers (optional)",
     missing_tokens_placeholder = "e.g. -99, 999, unknown",
     missing_tokens_help = "Comma-separated values treated as missing, in addition to NA/N/A. Case-insensitive; works for both text and numeric columns. Changing this re-detects variable types and resets manual edits.",
+    previous_codebook_label = "Re-upload a previous codebook (optional)",
+    previous_codebook_help = "Upload a codebook CSV exported earlier to prefill matching variables' Label and Units. Matched by variable name; unmatched variables are left as-is.",
     codebook_filename_suffix = "codebook",
     column_variable = "Variable",
     column_label = "Label",
@@ -84,6 +86,8 @@ translations <- list(
     missing_tokens_label = "Marqueurs de valeurs manquantes personnalisés (facultatif)",
     missing_tokens_placeholder = "ex. : -99, 999, inconnu",
     missing_tokens_help = "Valeurs séparées par des virgules traitées comme manquantes, en plus de NA/N/A. Insensible à la casse; fonctionne pour les colonnes texte et numériques. Modifier ce champ relance la détection des types et réinitialise les modifications manuelles.",
+    previous_codebook_label = "Reprendre un dictionnaire précédent (facultatif)",
+    previous_codebook_help = "Téléversez un dictionnaire CSV exporté précédemment pour préremplir les colonnes Étiquette et Unités des variables correspondantes. La correspondance se fait par nom de variable; les variables non trouvées restent inchangées.",
     codebook_filename_suffix = "dictionnaire",
     column_variable = "Variable",
     column_label = "Étiquette",
@@ -326,6 +330,62 @@ build_variable_attributes <- function(df, lang, missing_tokens = c("na", "n/a"))
   list(df = df, attr = attr)
 }
 
+# Finds, for each canonical attribute column, which name in an
+# uploaded codebook matches it in ANY supported language (not just the
+# UI's current language) - so re-uploading a French-exported codebook
+# while the UI is in English still matches "Étiquette" to Label, etc.
+match_canonical_columns <- function(df_names) {
+  canonical_names <- names(attribute_column_keys)
+  setNames(vapply(canonical_names, function(canonical) {
+    key <- attribute_column_keys[[canonical]]
+    variants <- unique(vapply(names(translations), function(l) translate_text(l, key), character(1)))
+    match_idx <- which(df_names %in% variants)
+    if (length(match_idx) >= 1) df_names[match_idx[1]] else NA_character_
+  }, character(1)), canonical_names)
+}
+
+# Builds a Variable -> list(Label, Units) lookup from a previously
+# exported codebook CSV, to prefill those two free-text fields when
+# the same dataset is re-documented. Returns NULL if the file doesn't
+# look like a codebook (no recognizable Variable column).
+build_codebook_lookup <- function(df) {
+  mapped <- match_canonical_columns(names(df))
+  var_col <- mapped[["Variable"]]
+  if (is.na(var_col)) {
+    return(NULL)
+  }
+  label_col <- mapped[["Label"]]
+  units_col <- mapped[["Units"]]
+
+  lookup <- list()
+  variable_names <- as.character(df[[var_col]])
+  for (i in seq_along(variable_names)) {
+    var_name <- variable_names[i]
+    if (is.na(var_name) || !nzchar(var_name)) next
+    lookup[[var_name]] <- list(
+      Label = if (!is.na(label_col)) as.character(df[[label_col]][i]) else "",
+      Units = if (!is.na(units_col)) as.character(df[[units_col]][i]) else ""
+    )
+  }
+  lookup
+}
+
+# Prefills Label/Units on attr from a previous-codebook lookup, matched
+# by Variable name. Leaves Type/Range/Missing untouched since those
+# should always reflect the current upload, not the old one.
+apply_previous_codebook <- function(attr, lookup) {
+  if (is.null(lookup) || is.null(attr) || nrow(attr) == 0) {
+    return(attr)
+  }
+  for (i in seq_len(nrow(attr))) {
+    prev <- lookup[[attr$Variable[i]]]
+    if (is.null(prev)) next
+    if (nzchar(prev$Label)) attr$Label[i] <- prev$Label
+    if (nzchar(prev$Units)) attr$Units[i] <- prev$Units
+  }
+  attr
+}
+
 restore_attribute_column_names <- function(df, lang) {
   if (is.null(df)) {
     return(df)
@@ -428,6 +488,10 @@ ui <- fluidPage(
 
       uiOutput("storage_note"),
 
+      uiOutput("previous_codebook_label"),
+      fileInput("previous_codebook_file", label = NULL, accept = c(".csv")),
+      uiOutput("previous_codebook_help"),
+
       uiOutput("missing_tokens_label"),
       textInput("custom_missing_tokens", label = NULL, value = ""),
       uiOutput("missing_tokens_help"),
@@ -490,6 +554,10 @@ server <- function(input, output, session) {
 
   # Reactive value to store attributes
   attributes <- reactiveVal()
+
+  # Variable -> Label/Units lookup built from a re-uploaded previous
+  # codebook, applied whenever the attribute table is (re)built
+  previous_codebook_lookup <- reactiveVal(NULL)
 
   current_lang <- reactive({
     normalize_lang(input$language)
@@ -596,6 +664,16 @@ server <- function(input, output, session) {
     tags$p(tr("storage_note"), style = "font-size: 14px; font-style: italic; color: #555;")
   })
 
+  output$previous_codebook_label <- renderUI({
+    tr <- translation_reactive()
+    tags$label(`for` = "previous_codebook_file", tr("previous_codebook_label"), class = "control-label")
+  })
+
+  output$previous_codebook_help <- renderUI({
+    tr <- translation_reactive()
+    tags$p(tr("previous_codebook_help"), style = "font-size: 13px; font-style: italic; color: #555;")
+  })
+
   output$missing_tokens_label <- renderUI({
     tr <- translation_reactive()
     tags$label(`for` = "custom_missing_tokens", tr("missing_tokens_label"), class = "control-label")
@@ -638,8 +716,10 @@ server <- function(input, output, session) {
     
     file_ext <- tools::file_ext(input$datafile$name)
     
-    if (file_ext %in% c("csv", "tsv")) {
+    if (file_ext == "csv") {
       df <- read.csv(input$datafile$datapath, stringsAsFactors = FALSE)
+    } else if (file_ext == "tsv") {
+      df <- read.delim(input$datafile$datapath, stringsAsFactors = FALSE)
     } else if (file_ext %in% c("xlsx")) {
       df <- read_excel(input$datafile$datapath)
       df <- as.data.frame(df)
@@ -657,7 +737,7 @@ server <- function(input, output, session) {
 
     result <- build_variable_attributes(df, lang, missing_tokens())
     data(result$df)
-    attributes(result$attr)
+    attributes(apply_previous_codebook(result$attr, previous_codebook_lookup()))
   })
 
   # Re-derive the codebook when the custom missing-value markers change,
@@ -668,8 +748,27 @@ server <- function(input, output, session) {
     lang <- current_lang()
     result <- build_variable_attributes(raw_data(), lang, missing_tokens_debounced())
     data(result$df)
-    attributes(result$attr)
+    attributes(apply_previous_codebook(result$attr, previous_codebook_lookup()))
   }, ignoreInit = TRUE)
+
+  # Prefill Label/Units from a previously exported codebook, matched by
+  # variable name. Works whether it's uploaded before or after the data
+  # file: it's stored as a lookup and (re)applied to the current
+  # attribute table here too, in case data is already loaded.
+  observeEvent(input$previous_codebook_file, {
+    req(input$previous_codebook_file)
+    prev_df <- tryCatch(
+      read.csv(input$previous_codebook_file$datapath, stringsAsFactors = FALSE),
+      error = function(e) NULL
+    )
+    lookup <- if (is.null(prev_df)) NULL else build_codebook_lookup(prev_df)
+    previous_codebook_lookup(lookup)
+
+    attr <- attributes()
+    if (!is.null(attr)) {
+      attributes(apply_previous_codebook(attr, lookup))
+    }
+  })
 
   # Display data preview
   output$data_preview <- DT::renderDataTable({
