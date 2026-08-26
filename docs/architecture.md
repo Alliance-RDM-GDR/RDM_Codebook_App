@@ -16,7 +16,9 @@ The interface is split into two main regions:
 Logic is separated into two layers:
 
 * The **UI layer** defines the layout and dynamically renders text based on user actions plus the selected language. A lightweight translation dictionary and helper functions in `app.R` keep both languages synchronized.
-* The **Server layer** parses uploads, derives metadata, tracks table edits, and pushes translated content back to the UI. Before variable types are inferred, common missing-value markers (`NA`, `N/A`, `na`, `n/a`, case-insensitive) are normalized to real `NA` values and numeric columns are re-cast; this keeps a numeric column from being misclassified as character just because missing cells were typed as text.
+* The **Server layer** parses uploads, derives metadata, tracks table edits, and pushes translated content back to the UI. Before variable types are inferred:
+  * Common missing-value markers (`NA`, `N/A`, `na`, `n/a`, case-insensitive, plus any user-supplied tokens from the sidebar) are normalized to real `NA` values — in both text and numeric columns — and columns are re-cast to numeric where that leaves only numbers. This keeps a variable from being misclassified as character just because missing cells were typed as text, or from having sentinel values like `-99`/`999` skew its numeric range.
+  * Character columns are tested against a small set of common date formats (ISO `YYYY-MM-DD`, and `DD/MM/YYYY` / `MM/DD/YYYY` with `/` or `-`); a column is only classified as `date` if every non-missing value matches one format and parses to a plausible year, so numeric-looking IDs are not misdetected as dates. Changing the custom missing-value markers re-runs this whole pipeline from the original upload, which resets any manual edits made in the attributes table.
 
 ## Deployment
 

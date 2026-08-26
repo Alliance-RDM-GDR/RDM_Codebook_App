@@ -39,6 +39,9 @@ translations <- list(
     values_prefix = "Values:",
     incompatible_type = "incompatible data type",
     no_missing_values = "No missing values",
+    missing_tokens_label = "Custom missing value markers (optional)",
+    missing_tokens_placeholder = "e.g. -99, 999, unknown",
+    missing_tokens_help = "Comma-separated values treated as missing, in addition to NA/N/A. Case-insensitive; works for both text and numeric columns. Changing this re-detects variable types and resets manual edits.",
     codebook_filename_suffix = "codebook",
     column_variable = "Variable",
     column_label = "Label",
@@ -78,6 +81,9 @@ translations <- list(
     values_prefix = "Valeurs :",
     incompatible_type = "type de données incompatible",
     no_missing_values = "Aucune valeur manquante",
+    missing_tokens_label = "Marqueurs de valeurs manquantes personnalisés (facultatif)",
+    missing_tokens_placeholder = "ex. : -99, 999, inconnu",
+    missing_tokens_help = "Valeurs séparées par des virgules traitées comme manquantes, en plus de NA/N/A. Insensible à la casse; fonctionne pour les colonnes texte et numériques. Modifier ce champ relance la détection des types et réinitialise les modifications manuelles.",
     codebook_filename_suffix = "dictionnaire",
     column_variable = "Variable",
     column_label = "Étiquette",
@@ -157,7 +163,11 @@ describe_column_values <- function(column, type, lang) {
   }
   
   if (type == "date") {
-    suppressWarnings(column <- as.Date(column))
+    parsed <- parse_date_column(column)
+    if (is.null(parsed)) {
+      suppressWarnings(parsed <- as.Date(column))
+    }
+    column <- parsed
     non_missing <- column[!is.na(column)]
     if (!length(non_missing)) {
       return(incompatible)
@@ -170,14 +180,14 @@ describe_column_values <- function(column, type, lang) {
   ""
 }
 
-describe_missing_values <- function(column, lang) {
+describe_missing_values <- function(column, lang, missing_strings = c("na", "n/a")) {
   lang <- normalize_lang(lang)
   x_char <- as.character(column)
   x_trim <- trimws(x_char)
   x_lower <- tolower(x_trim)
   x_lower[is.na(x_lower)] <- ""
-  missing_strings <- c("na", "n/a", "")
-  num_missing <- sum(is.na(column) | x_lower %in% missing_strings)
+  full_missing_strings <- unique(c(tolower(trimws(missing_strings)), ""))
+  num_missing <- sum(is.na(column) | x_lower %in% full_missing_strings)
   if (num_missing > 0) {
     as.character(num_missing)
   } else {
@@ -185,10 +195,75 @@ describe_missing_values <- function(column, lang) {
   }
 }
 
-normalize_missing_tokens <- function(df) {
-  missing_strings <- c("na", "n/a")
+# Recognized date formats, tried in order. Regexes require an explicit
+# separator so plain numeric IDs (e.g. "20230101") are never mistaken
+# for dates. When both day-first and month-first candidates match the
+# same "\d\d/\d\d/\d\d\d\d" shape, day-first is tried first (more common
+# outside the US); a component >12 in the wrong slot makes as.Date()
+# return NA and the next candidate is tried instead.
+date_format_candidates <- list(
+  list(regex = "^\\d{4}-\\d{1,2}-\\d{1,2}$", format = "%Y-%m-%d"),
+  list(regex = "^\\d{4}/\\d{1,2}/\\d{1,2}$", format = "%Y/%m/%d"),
+  list(regex = "^\\d{1,2}/\\d{1,2}/\\d{4}$", format = "%d/%m/%Y"),
+  list(regex = "^\\d{1,2}/\\d{1,2}/\\d{4}$", format = "%m/%d/%Y"),
+  list(regex = "^\\d{1,2}-\\d{1,2}-\\d{4}$", format = "%d-%m-%Y"),
+  list(regex = "^\\d{1,2}-\\d{1,2}-\\d{4}$", format = "%m-%d-%Y")
+)
+
+# Tries each candidate format and returns a Date vector only if every
+# non-missing value matches the same format, parses to a real date, and
+# falls in a plausible year range. Returns NULL if no candidate fits,
+# so callers can fall back to base as.Date() or bail out.
+parse_date_column <- function(x) {
+  if (inherits(x, "Date")) {
+    return(x)
+  }
+  values <- trimws(as.character(x))
+  is_present <- !is.na(values) & values != ""
+  non_missing <- values[is_present]
+  if (length(non_missing) == 0) {
+    return(as.Date(rep(NA_character_, length(values))))
+  }
+
+  for (candidate in date_format_candidates) {
+    if (!all(grepl(candidate$regex, non_missing))) next
+    parsed <- suppressWarnings(as.Date(values, format = candidate$format))
+    parsed_present <- parsed[is_present]
+    if (anyNA(parsed_present)) next
+    years <- as.numeric(format(parsed_present, "%Y"))
+    if (any(years < 1000 | years > 2999)) next
+    return(parsed)
+  }
+  NULL
+}
+
+detect_date_column <- function(x) {
+  if (inherits(x, "Date")) {
+    return(TRUE)
+  }
+  values <- trimws(as.character(x))
+  values <- values[!is.na(values) & values != ""]
+  if (length(values) < 2) {
+    return(FALSE)
+  }
+  !is.null(parse_date_column(x))
+}
+
+normalize_missing_tokens <- function(df, missing_strings = c("na", "n/a")) {
+  missing_strings <- unique(tolower(trimws(missing_strings)))
+  numeric_tokens <- suppressWarnings(as.numeric(missing_strings))
+  numeric_tokens <- numeric_tokens[!is.na(numeric_tokens)]
+
   for (col_name in names(df)) {
     col <- df[[col_name]]
+
+    if (is.numeric(col)) {
+      if (length(numeric_tokens) > 0) {
+        df[[col_name]][col %in% numeric_tokens] <- NA
+      }
+      next
+    }
+
     if (!is.character(col) && !is.factor(col)) next
 
     col_char <- as.character(col)
@@ -206,6 +281,49 @@ normalize_missing_tokens <- function(df) {
     df[[col_name]] <- col_char
   }
   df
+}
+
+build_variable_attributes <- function(df, lang, missing_tokens = c("na", "n/a")) {
+  df <- normalize_missing_tokens(df, missing_tokens)
+
+  # Map variable types to predefined levels
+  mapped_types <- sapply(df, function(x) {
+    t <- class(x)[1]
+    if (t %in% c("integer", "numeric", "double")) {
+      "numeric"
+    } else if (t %in% c("date", "POSIXct", "POSIXt")) {
+      "date"
+    } else if (t %in% c("factor")) {
+      "factor"
+    } else if (t %in% c("character")) {
+      if (detect_date_column(x)) "date" else "character"
+    } else {
+      "character"
+    }
+  })
+
+  # Initialize attributes with default columns
+  attr <- data.frame(
+    Variable = colnames(df),
+    Label = rep("", ncol(df)),
+    Type = mapped_types,
+    Range_or_Levels = rep("", ncol(df)),
+    Missing_Values = rep("", ncol(df)),
+    Units = rep("", ncol(df)),
+    stringsAsFactors = FALSE
+  )
+
+  attr$Range_or_Levels <- mapply(function(var, type) {
+    describe_column_values(df[[var]], type, lang)
+  }, attr$Variable, attr$Type, SIMPLIFY = TRUE, USE.NAMES = FALSE)
+
+  attr$Missing_Values <- sapply(attr$Variable, function(var) {
+    describe_missing_values(df[[var]], lang, missing_tokens)
+  })
+
+  attr$Type <- factor(attr$Type, levels = c("numeric", "character", "factor", "date"))
+
+  list(df = df, attr = attr)
 }
 
 restore_attribute_column_names <- function(df, lang) {
@@ -307,8 +425,12 @@ ui <- fluidPage(
       uiOutput("upload_label"),
       fileInput("datafile", label = NULL,
                 accept = c(".csv", ".tsv", ".xlsx")),
-      
+
       uiOutput("storage_note"),
+
+      uiOutput("missing_tokens_label"),
+      textInput("custom_missing_tokens", label = NULL, value = ""),
+      uiOutput("missing_tokens_help"),
       
       actionButton(
         "download_codebook",
@@ -361,13 +483,31 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   # Reactive value to store data
   data <- reactiveVal()
-  
+
+  # Reactive value to store the untouched upload, used to re-derive the
+  # codebook when the custom missing-value markers change
+  raw_data <- reactiveVal()
+
   # Reactive value to store attributes
   attributes <- reactiveVal()
-  
+
   current_lang <- reactive({
     normalize_lang(input$language)
   })
+
+  missing_tokens <- reactive({
+    base_tokens <- c("na", "n/a")
+    extra <- input$custom_missing_tokens
+    if (is.null(extra) || !nzchar(trimws(extra))) {
+      return(base_tokens)
+    }
+    extra_tokens <- strsplit(extra, ",")[[1]]
+    extra_tokens <- tolower(trimws(extra_tokens))
+    extra_tokens <- extra_tokens[nzchar(extra_tokens)]
+    unique(c(base_tokens, extra_tokens))
+  })
+
+  missing_tokens_debounced <- debounce(missing_tokens, 500)
   
   translation_reactive <- reactive({
     lang <- current_lang()
@@ -455,6 +595,21 @@ server <- function(input, output, session) {
     tr <- translation_reactive()
     tags$p(tr("storage_note"), style = "font-size: 14px; font-style: italic; color: #555;")
   })
+
+  output$missing_tokens_label <- renderUI({
+    tr <- translation_reactive()
+    tags$label(`for` = "custom_missing_tokens", tr("missing_tokens_label"), class = "control-label")
+  })
+
+  output$missing_tokens_help <- renderUI({
+    tr <- translation_reactive()
+    tags$p(tr("missing_tokens_help"), style = "font-size: 13px; font-style: italic; color: #555;")
+  })
+
+  observe({
+    tr <- translation_reactive()
+    updateTextInput(session, "custom_missing_tokens", placeholder = tr("missing_tokens_placeholder"))
+  })
   
   output$data_preview_title <- renderUI({
     tr <- translation_reactive()
@@ -498,50 +653,24 @@ server <- function(input, output, session) {
       return(NULL)
     }
 
-    df <- normalize_missing_tokens(df)
+    raw_data(df)
 
-    data(df)
-
-    # Map variable types to predefined levels
-    mapped_types <- sapply(df, function(x) {
-      t <- class(x)[1]
-      if (t %in% c("integer", "numeric", "double")) {
-        "numeric"
-      } else if (t %in% c("character")) {
-        "character"
-      } else if (t %in% c("factor")) {
-        "factor"
-      } else if (t %in% c("date", "POSIXct", "POSIXt")) {
-        "date"
-      } else {
-        "character"
-      }
-    })
-    
-    # Initialize attributes with default columns
-    attr <- data.frame(
-      Variable = colnames(df),
-      Label = rep("", ncol(df)),
-      Type = mapped_types,
-      Range_or_Levels = rep("", ncol(df)),
-      Missing_Values = rep("", ncol(df)),
-      Units = rep("", ncol(df)),
-      stringsAsFactors = FALSE
-    )
-    
-    attr$Range_or_Levels <- mapply(function(var, type) {
-      describe_column_values(df[[var]], type, lang)
-    }, attr$Variable, attr$Type, SIMPLIFY = TRUE, USE.NAMES = FALSE)
-    
-    attr$Missing_Values <- sapply(attr$Variable, function(var) {
-      describe_missing_values(df[[var]], lang)
-    })
-    
-    attr$Type <- factor(attr$Type, levels = c("numeric", "character", "factor", "date"))
-    
-    attributes(attr)
+    result <- build_variable_attributes(df, lang, missing_tokens())
+    data(result$df)
+    attributes(result$attr)
   })
-  
+
+  # Re-derive the codebook when the custom missing-value markers change,
+  # without requiring a fresh upload. This re-detects types from the
+  # original upload, so it resets any manual edits made in the table.
+  observeEvent(missing_tokens_debounced(), {
+    req(raw_data())
+    lang <- current_lang()
+    result <- build_variable_attributes(raw_data(), lang, missing_tokens_debounced())
+    data(result$df)
+    attributes(result$attr)
+  }, ignoreInit = TRUE)
+
   # Display data preview
   output$data_preview <- DT::renderDataTable({
     req(data())
@@ -655,7 +784,11 @@ server <- function(input, output, session) {
           })
         } else if (updated_type == "date") {
           tryCatch({
-            df[[variable_name]] <- as.Date(df[[variable_name]])
+            parsed <- parse_date_column(df[[variable_name]])
+            if (is.null(parsed)) {
+              suppressWarnings(parsed <- as.Date(df[[variable_name]]))
+            }
+            df[[variable_name]] <- parsed
             if (all(is.na(df[[variable_name]]))) {
               attr$Range_or_Levels[i] <- translate_text(lang, "incompatible_type")
             } else {
@@ -667,9 +800,9 @@ server <- function(input, output, session) {
         } else {
           attr$Range_or_Levels[i] <- ""
         }
-        
+
         # Re-check missing values
-        attr$Missing_Values[i] <- describe_missing_values(df[[variable_name]], lang)
+        attr$Missing_Values[i] <- describe_missing_values(df[[variable_name]], lang, missing_tokens())
       }
       
       data(df)
@@ -688,7 +821,7 @@ server <- function(input, output, session) {
         describe_column_values(df[[var]], type, lang)
       }, attr$Variable, as.character(attr$Type), SIMPLIFY = TRUE, USE.NAMES = FALSE)
       attr$Missing_Values <- sapply(attr$Variable, function(var) {
-        describe_missing_values(df[[var]], lang)
+        describe_missing_values(df[[var]], lang, missing_tokens())
       })
       attributes(attr)
     })
